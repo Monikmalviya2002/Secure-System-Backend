@@ -1,27 +1,30 @@
 import express from "express";
 import Incident from "../models/incident.js";
-import AuditLog from "../models/auditLog.js";
-import userAuth from "../middleware/userAuth.js";
-import restrictTo from "../middleware/restrictTo.js";
+import AuditLogs from "../models/auditLogs.js";
+import userAuth from "../middleware/auth.js";
+import restrictTo from "../middleware/restrict.js";
+import upload from "../middleware/upload.js";
 
-     const incidentrouter = express.Router();
+     const incidentRouter = express.Router();
 
 
-         incidentrouter.post("/", userAuth, restrictTo("user", "admin", "superadmin"), async (req, res) => {
+         incidentRouter.post("/", userAuth, restrictTo("user", "admin", "superadmin"), upload.single("evidence"),
+          async (req, res) => {
            try {
       
-            const { title, description, priority } = req.body;
+        const { title, description, priority } = req.body;
 
           const incident = new Incident({
             title,
           description,
            priority,
          createdBy: req.user._id,
+         evidence: req.file ? req.file.path : null,
              });
 
         await incident.save();
 
-           await AuditLog.create({
+           await AuditLogs.create({
            action: "create",
          incidentId: incident._id,
         userId: req.user._id,
@@ -35,7 +38,7 @@ import restrictTo from "../middleware/restrictTo.js";
           });
 
 
-     incidentrouter.patch("/:id", userAuth, restrictTo("admin", "superadmin"), async (req, res) => {
+     incidentRouter.patch("/:id", userAuth, restrictTo("admin", "superadmin"), async (req, res) => {
               try {
         const incident = await Incident.findById(req.params.id);
 
@@ -51,7 +54,7 @@ import restrictTo from "../middleware/restrictTo.js";
 
            await incident.save();
 
-         await AuditLog.create({
+         await AuditLogs.create({
         action: "update",
        incidentId: incident._id,
         userId: req.user._id,
@@ -65,7 +68,7 @@ import restrictTo from "../middleware/restrictTo.js";
         });
 
 
-    incidentrouter.delete("/:id", userAuth, restrictTo("superadmin"), async (req, res) => {
+    incidentRouter.delete("/:id", userAuth, restrictTo("superadmin"), async (req, res) => {
      try {
        const incident = await Incident.findByIdAndDelete(req.params.id);
 
@@ -73,7 +76,7 @@ import restrictTo from "../middleware/restrictTo.js";
       return res.status(404).json({ error: "Incident not found" });
     }
 
-          await AuditLog.create({
+          await AuditLogs.create({
       action: "delete",
          incidentId: incident._id,
       userId: req.user._id,
@@ -86,4 +89,4 @@ import restrictTo from "../middleware/restrictTo.js";
         }
      });
 
-  export default router;
+  export default incidentRouter;

@@ -4,7 +4,7 @@ import User from "../models/user.js";
 
 dotenv.config();
 
-const userAuth = async(req,res,next)=>{
+  const userAuth = async(req,res,next)=>{
     
      try{
       if (req.method === "OPTIONS") {

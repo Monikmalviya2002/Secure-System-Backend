@@ -2,12 +2,18 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/database.js"
 import authRouter from "./routes/auth.js";
+import superadminRouter from "./routes/superadmin.js";
+import incidentRouter from "./routes/incident.js"
+import dashboardRouter from "./routes/dashborad.js"
 import cors from "cors"
 import cookieParser from "cookie-parser";
+ import path from "path";
+ 
 dotenv.config();
 
 
 const app = express()
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -21,7 +27,10 @@ const corsOptions = {
 app.use(cookieParser());
 
 
-app.use("/api", authRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/incident", incidentRouter);
+app.use("/api/superadmin", superadminRouter);
+app.use("/api/dashborad",dashboardRouter)
 
 connectDB();
 
