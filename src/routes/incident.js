@@ -16,9 +16,10 @@ import upload from "../middleware/upload.js";
 
           const incident = new Incident({
             title,
-          description,
+             description,
+               category,     
            priority,
-         createdBy: req.user._id,
+           createdBy: req.user._id,
          evidence: req.file ? req.file.path : null,
              });
 
@@ -36,7 +37,27 @@ import upload from "../middleware/upload.js";
         res.status(500).json({ error: "Failed to create incident" });
               }
           });
+                     
+        
+        incidentRouter.get("/", userAuth, async (req, res) => {
+                  try {
+                   let incidents = [];
 
+              if (req.user.role === "user") {
+                   incidents = await Incident.find({ createdBy: req.user._id })
+                         .sort({ createdAt: -1 });
+                      } else {
+                     incidents = await Incident.find()
+                   .populate("createdBy", "username emailId")
+                     .populate("assignedTo", "username emailId")
+                    .sort({ createdAt: -1 });
+                           }
+
+                 res.json(incidents);
+                     } catch (err) {
+                    res.status(500).json({ error: "Failed to fetch incidents" });
+                         }
+                    });
 
      incidentRouter.patch("/:id", userAuth, restrictTo("admin", "superadmin"), async (req, res) => {
               try {

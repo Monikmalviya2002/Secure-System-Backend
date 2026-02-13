@@ -1,6 +1,7 @@
 import express from "express"
 import validateSignUpData from "../utills/validation.js";
 import bcrypt from "bcrypt"
+import userAuth from "../middleware/auth.js";
 import User from "../models/user.js"
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -66,6 +67,19 @@ const authRouter = express.Router();
 }
 
 });
+
+         
+
+           authRouter.get("/user", userAuth, async(req, res) => {
+           try {
+           const userData = req.user.toObject();
+               delete userData.password;
+
+            res.json(userData);
+           } catch (err) {
+       res.status(400).json({ error: "Failed to get user" });
+             }
+           });
 
 
       authRouter.post("/logout",async(req,res)=>{

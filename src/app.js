@@ -5,10 +5,12 @@ import authRouter from "./routes/auth.js";
 import superadminRouter from "./routes/superadmin.js";
 import incidentRouter from "./routes/incident.js"
 import dashboardRouter from "./routes/dashborad.js"
+import adminRouter from "./routes/adminstats.js"
+import auditRouter from "./routes/auditlogs.js";
 import cors from "cors"
 import cookieParser from "cookie-parser";
  import path from "path";
- 
+
 dotenv.config();
 
 
@@ -30,6 +32,9 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/incident", incidentRouter);
 app.use("/api/superadmin", superadminRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/audit-logs", auditRouter);
+
 app.use("/api/dashborad",dashboardRouter)
 
 connectDB();
